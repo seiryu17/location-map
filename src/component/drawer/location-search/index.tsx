@@ -61,6 +61,11 @@ const LocationSearchDrawer = (props: IProps) => {
     );
   };
 
+  const clearList = () => {
+    ClearListPlaces(GROUP_MAP.LIST_SUGGESTED);
+    setOptions([]);
+  };
+
   useEffect(() => {
     if (search) {
       if (valueRadio === 1) {
@@ -91,8 +96,7 @@ const LocationSearchDrawer = (props: IProps) => {
         setOptions(data);
       }
     } else if (search === "" && valueRadio === 1) {
-      ClearListPlaces(GROUP_MAP.LIST_SUGGESTED);
-      setOptions([]);
+      clearList();
     } else if (search === "" && valueRadio === 2) {
       addDummy();
     }
@@ -103,8 +107,7 @@ const LocationSearchDrawer = (props: IProps) => {
     if (e.target.value === 2) {
       addDummy();
     } else {
-      ClearListPlaces(GROUP_MAP.LIST_SUGGESTED);
-      setOptions([]);
+      clearList();
     }
   };
 
