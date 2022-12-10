@@ -17,6 +17,13 @@ const ClearListPlaces =
     dispatch(action(ActionTypes.Map.CLEAR_LIST_PLACES, { type }));
   };
 
+const AddDummyToListPlaces =
+  (list: any, type?: GROUP_MAP.LIST_SUGGESTED) =>
+  (dispatch: Dispatch<AnyAction>) => {
+    const data = list.predictions;
+    dispatch(action(ActionTypes.Map.ADD_DUMMY_TO_REDUX, { list: data, type }));
+  };
+
 const GetLangLat = (place_id: string) => (dispatch: Dispatch<AnyAction>) => {
   return Base.CallAction(
     Api.Map.GetLangLat(place_id),
@@ -69,6 +76,7 @@ const GetListPlaces =
 export default {
   AddHistory,
   ClearListPlaces,
+  AddDummyToListPlaces,
   GetLangLat,
   GetListPlaces,
 };

@@ -31,6 +31,7 @@ const reducer: Reducer<any> = (
         error: undefined,
       };
     }
+    case ActionTypes.Map.ADD_DUMMY_TO_REDUX:
     case ActionTypes.Map.ADD_SUGGESTED_LIST_SUCCESS: {
       const { list } = action.payload;
       if (action.payload?.type) {

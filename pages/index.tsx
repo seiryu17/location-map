@@ -19,6 +19,7 @@ interface IProps {
   ) => Promise<any>;
   AddHistory: (data: IMap, type: GROUP_MAP.HISTORY) => void;
   ClearListPlaces: (type: GROUP_MAP.LIST_SUGGESTED) => void;
+  AddDummyToListPlaces: (list: any, type: GROUP_MAP.LIST_SUGGESTED) => void;
   GetLangLat: (place_id: string) => Promise<any>;
 }
 
@@ -28,7 +29,14 @@ const containerStyle = {
 };
 
 const Home = (props: IProps) => {
-  const { map, GetListPlaces, AddHistory, ClearListPlaces, GetLangLat } = props;
+  const {
+    map,
+    GetListPlaces,
+    AddHistory,
+    ClearListPlaces,
+    GetLangLat,
+    AddDummyToListPlaces,
+  } = props;
 
   const [visible, setVisible] = useState(false);
   const [currentloc, setCurrentLoc] = useState({ lat: 0, lng: 0 });
@@ -52,9 +60,9 @@ const Home = (props: IProps) => {
         AddHistory={AddHistory}
         ClearListPlaces={ClearListPlaces}
         GetLangLat={GetLangLat}
-        setCurrentLoc={setCurrentLoc}
         setZoom={setZoom}
         onClose={() => setVisible(false)}
+        AddDummyToListPlaces={AddDummyToListPlaces}
       />
       <Button
         className="button-drawer"
@@ -90,6 +98,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(Actions.Map.AddHistory(data, type)),
   ClearListPlaces: (type: GROUP_MAP.LIST_SUGGESTED) =>
     dispatch(Actions.Map.ClearListPlaces(type)),
+  AddDummyToListPlaces: (list: any, type: GROUP_MAP.LIST_SUGGESTED) =>
+    dispatch(Actions.Map.AddDummyToListPlaces(list, type)),
   GetLangLat: (place_id: string) => dispatch(Actions.Map.GetLangLat(place_id)),
 });
 

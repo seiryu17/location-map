@@ -1,10 +1,20 @@
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { AutoComplete, Col, Drawer, List, Row } from "antd";
+import {
+  AutoComplete,
+  Col,
+  Drawer,
+  List,
+  Radio,
+  RadioChangeEvent,
+  Row,
+} from "antd";
 import React, { useEffect, useState } from "react";
+import DUMMY_DATA from "../../../constant/dummy-data";
 import GROUP_MAP from "../../../constant/group-map";
 import IMap from "../../../interfaces/models/map";
 import IMapState from "../../../interfaces/states/map";
 import useDebounce from "../../../utils/debounce";
+import stringSimilarity from "string-similarity";
 
 interface IProps {
   visible: boolean;
@@ -18,7 +28,7 @@ interface IProps {
   ClearListPlaces: (type: GROUP_MAP.LIST_SUGGESTED) => void;
   GetLangLat: (place_id: string) => Promise<any>;
   setZoom: (value: number) => void;
-  setCurrentLoc: (location: { lat: number; lng: number }) => void;
+  AddDummyToListPlaces: (list: any, type: GROUP_MAP.LIST_SUGGESTED) => void;
 }
 
 const LocationSearchDrawer = (props: IProps) => {
@@ -31,52 +41,98 @@ const LocationSearchDrawer = (props: IProps) => {
     ClearListPlaces,
     GetLangLat,
     setZoom,
-    setCurrentLoc,
+    AddDummyToListPlaces,
   } = props;
   const [options, setOptions] = useState<IMap[]>(
     map.groupedList[GROUP_MAP.LIST_SUGGESTED]?.list || []
   );
   const [search, setSearch] = useState("");
   const searchVal = useDebounce(search, 500);
+  const [valueRadio, setValueRadio] = useState(1);
+
+  const addDummy = () => {
+    return (
+      AddDummyToListPlaces(DUMMY_DATA, GROUP_MAP.LIST_SUGGESTED),
+      setOptions(
+        DUMMY_DATA.predictions.map((x: any) => {
+          return { value: x.description, key: x.place_id };
+        })
+      )
+    );
+  };
 
   useEffect(() => {
     if (search) {
-      GetListPlaces(
-        (searchVal || "").toLowerCase(),
-        GROUP_MAP.LIST_SUGGESTED
-      ).then((res) => {
-        if (res.data)
-          setOptions(
-            res.data.predictions.map((x: any) => {
-              return { value: x.description, key: x.place_id };
-            })
-          );
-      });
-    } else if (search === "") {
+      if (valueRadio === 1) {
+        GetListPlaces(
+          (searchVal || "").toLowerCase(),
+          GROUP_MAP.LIST_SUGGESTED
+        ).then((res) => {
+          if (res.data)
+            setOptions(
+              res.data.predictions.map((x: any) => {
+                return { value: x.description, key: x.place_id };
+              })
+            );
+        });
+      } else {
+        let matches = stringSimilarity.findBestMatch(
+          searchVal,
+          DUMMY_DATA.predictions.map((x) => x.description.toLowerCase())
+        );
+        let bestMatches = matches.ratings.filter((x: any) => x.rating > 0.1);
+        let data: IMap[] = [];
+        bestMatches.map((x) => {
+          return DUMMY_DATA.predictions.map((xx) => {
+            if (xx.description.toLowerCase() === x.target)
+              return data.push({ value: xx.description, key: xx.place_id });
+          });
+        });
+        setOptions(data);
+      }
+    } else if (search === "" && valueRadio === 1) {
+      ClearListPlaces(GROUP_MAP.LIST_SUGGESTED);
+      setOptions([]);
+    } else if (search === "" && valueRadio === 2) {
+      addDummy();
+    }
+  }, [searchVal]);
+
+  const onChangeRadio = (e: RadioChangeEvent) => {
+    setSearch(""), setValueRadio(e.target.value);
+    if (e.target.value === 2) {
+      addDummy();
+    } else {
       ClearListPlaces(GROUP_MAP.LIST_SUGGESTED);
       setOptions([]);
     }
-  }, [searchVal]);
+  };
 
   return (
     <Drawer
       title={
-        <AutoComplete
-          options={options}
-          value={search}
-          className="autocomplete-textbox"
-          style={{ width: "100%" }}
-          allowClear
-          onSearch={(searchText: string) => setSearch(searchText)}
-          onSelect={(data, option) => (
-            setSearch(data),
-            (map.list || [])?.filter((x) => x.value === data).length < 1 &&
-              AddHistory(option, GROUP_MAP.HISTORY),
-            GetLangLat(option.key),
-            setZoom(16)
-          )}
-          placeholder="Input location here"
-        />
+        <>
+          <Radio.Group onChange={onChangeRadio} value={valueRadio}>
+            <Radio value={1}>API</Radio>
+            <Radio value={2}>Fake Static Data</Radio>
+          </Radio.Group>
+          <AutoComplete
+            options={options}
+            value={search}
+            className="autocomplete-textbox"
+            style={{ width: "100%", marginTop: 8 }}
+            allowClear
+            onSearch={(searchText: string) => setSearch(searchText)}
+            onSelect={(data, option) => (
+              setSearch(data),
+              (map.list || [])?.filter((x) => x.value === data).length < 1 &&
+                AddHistory(option, GROUP_MAP.HISTORY),
+              GetLangLat(option.key),
+              setZoom(16)
+            )}
+            placeholder="Input location here"
+          />
+        </>
       }
       className="drawer-location-search"
       placement="left"
