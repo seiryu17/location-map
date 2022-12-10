@@ -6,7 +6,6 @@ import IMap from "../src/interfaces/models/map";
 import IMapState from "../src/interfaces/states/map";
 import Actions from "../src/store/actions";
 import { ReduxState } from "../src/store/reducers";
-import useDebounce from "../src/utils/debounce";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { SearchOutlined } from "@ant-design/icons";
 import LocationSearchDrawer from "../src/component/drawer/location-search";

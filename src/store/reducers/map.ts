@@ -134,7 +134,7 @@ const reducer: Reducer<any> = (
       const { error } = action.payload;
       return {
         ...state,
-        requesting: true,
+        requesting: false,
         error,
       };
     }
