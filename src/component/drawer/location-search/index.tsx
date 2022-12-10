@@ -63,10 +63,13 @@ const LocationSearchDrawer = (props: IProps) => {
       title={
         <AutoComplete
           options={options}
+          value={search}
           className="autocomplete-textbox"
           style={{ width: "100%" }}
+          allowClear
           onSearch={(searchText: string) => setSearch(searchText)}
           onSelect={(data, option) => (
+            setSearch(data),
             (map.list || [])?.filter((x) => x.value === data).length < 1 &&
               AddHistory(option, GROUP_MAP.HISTORY),
             GetLangLat(option.key),
@@ -91,7 +94,7 @@ const LocationSearchDrawer = (props: IProps) => {
         renderItem={(t) => (
           <Row
             className="list-item use-pointer"
-            onClick={() => (GetLangLat(t.key), onClose())}
+            onClick={() => (setSearch(t.value), GetLangLat(t.key), onClose())}
             gutter={8}
             wrap={false}
           >
