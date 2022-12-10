@@ -1,4 +1,8 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
+import {
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import {
   AutoComplete,
   Col,
@@ -7,6 +11,7 @@ import {
   Radio,
   RadioChangeEvent,
   Row,
+  Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import DUMMY_DATA from "../../../constant/dummy-data";
@@ -115,10 +120,17 @@ const LocationSearchDrawer = (props: IProps) => {
     <Drawer
       title={
         <>
-          <Radio.Group onChange={onChangeRadio} value={valueRadio}>
-            <Radio value={1}>API</Radio>
-            <Radio value={2}>Fake Static Data</Radio>
-          </Radio.Group>
+          <Row style={{ width: "100%" }} justify="space-between">
+            <Radio.Group onChange={onChangeRadio} value={valueRadio}>
+              <Radio value={1}>API</Radio>
+              <Radio value={2}>Fake Static Data</Radio>
+            </Radio.Group>
+            <CloseOutlined
+              className="use-pointer"
+              style={{ fontSize: "20px" }}
+              onClick={() => onClose()}
+            />
+          </Row>
           <AutoComplete
             options={options}
             value={search}
@@ -128,6 +140,7 @@ const LocationSearchDrawer = (props: IProps) => {
             onSearch={(searchText: string) => setSearch(searchText)}
             onSelect={(data, option) => (
               setSearch(data),
+              onClose(),
               (map.list || [])?.filter((x) => x.value === data).length < 1 &&
                 AddHistory(option, GROUP_MAP.HISTORY),
               GetLangLat(option.key),
@@ -144,6 +157,9 @@ const LocationSearchDrawer = (props: IProps) => {
       open={visible}
       key="left"
     >
+      <Typography.Title style={{ marginTop: 0 }} level={4}>
+        Search History
+      </Typography.Title>
       <List
         dataSource={map.groupedList[GROUP_MAP.HISTORY]?.list || []}
         grid={{
